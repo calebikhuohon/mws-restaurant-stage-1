@@ -23,7 +23,7 @@ self.addEventListener('install', (event) => {
         caches.open(CACHE_NAME)
             .then((cache) => {
                 console.log('[Service worker] caching all files');
-                caches.addAll(urlsToCache);
+                cache.addAll(urlsToCache);
             }).then(() => self.skipWaiting()).catch(err => console.log('error occured while caching files: ', err))
     );
 });
