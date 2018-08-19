@@ -4,9 +4,10 @@ let restaurants,
 var newMap
 var markers = []
 
-
+console.log(`${window.location.pathname}sw.js`);
 if('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
+    
     navigator.serviceWorker.register(`${window.location.pathname}sw.js`).then((registration) => {
       console.log('service worker registration successful with scop: ',registration.scope);
     }, (err) => {
@@ -177,8 +178,8 @@ createRestaurantHTML = (restaurant) => {
   image.className = 'restaurant-img';
   image.alt = `${restaurant.name} Restaurant`;
   image.title = `${restaurant.name} Restaurant`;
-  image.srcset = `${imageList.small} 350w, ${imageList.medium} 500vw, ${imageList.large} 800w`;
-  image.sizes = `(min-width: 800px) 30vw, (min-width: 500px) and (max-width: 699px) 20vw, 10vw`;
+  image.srcset = `${imageList.small} 350w, ${imageList.medium} 500vw`;
+  image.sizes = `(min-width: 500px) 20vw, 10vw`;
 
 
   li.append(image);
