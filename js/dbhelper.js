@@ -8,8 +8,8 @@ class DBHelper {
    * Change this to restaurants.json file location on your server.
    */
   static get DATABASE_URL() {
-    const port = 8080 // Change this to your server port
-    return `http://192.168.8.101:${port}/data/restaurants.json`;
+    //const port = 8080 // Change this to your server port
+    return `https://calebikhuohon.github.io/mws-restaurant-stage-1/data/restaurants.json`;
   }
 
   /**
@@ -150,9 +150,17 @@ class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    return (`/img/${restaurant.photograph}`);
+    const images = `/images/${restaurant.photograph.substr(0,1)}`;
+    
+    return {
+      small: `${images}-600_small.jpg`,
+      medium: `${images}-900_medium.jpg`,
+      large: `${images}-1600_large.jpg`
+    };
+    // return (`/img/${restaurant.photograph}`);
   }
 
+  
   /**
    * Map marker for a restaurant.
    */

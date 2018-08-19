@@ -171,8 +171,16 @@ createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
 
   const image = document.createElement('img');
+ 
+  imageList = DBHelper.imageUrlForRestaurant(restaurant);
+  image.src = imageList.medium;
   image.className = 'restaurant-img';
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  image.alt = `${restaurant.name} Restaurant`;
+  image.title = `${restaurant.name} Restaurant`;
+  image.srcset = `${imageList.small} 350w, ${imageList.medium} 500vw, ${imageList.large} 800w`;
+  image.sizes = `(min-width: 800px) 30vw, (min-width: 500px) and (max-width: 699px) 20vw, 10vw`;
+
+
   li.append(image);
 
   const name = document.createElement('h1');
