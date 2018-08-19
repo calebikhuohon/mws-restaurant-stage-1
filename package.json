@@ -1,0 +1,29 @@
+{
+  "name": "mws-restaurant-stage-1",
+  "version": "1.0.0",
+  "description": "A capstone project for the mobile web specialist nanodegree",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calebikhuohon/mws-restaurant-stage-1.git"
+  },
+  "author": "caleb",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/calebikhuohon/mws-restaurant-stage-1/issues"
+  },
+  "homepage": "https://github.com/calebikhuohon/mws-restaurant-stage-1#readme",
+  "dependencies": {
+    "grunt-cli": "^1.3.1"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.3",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-mkdir": "^1.0.0",
+    "grunt-responsive-images": "^1.10.1"
+  }
+}
