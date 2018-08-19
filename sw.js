@@ -10,7 +10,7 @@ const urlsToCache = [
     './restaurant.html',
     './css/styles.css',
     './data/restaurants.json',
-    '//normalize-css.googlecode.com/svn/trunk/normalize.css',
+    'https://normalize-css.googlecode.com/svn/trunk/normalize.css',
     'https://unpkg.com/leaflet@1.3.1/dist/leaflet.css',
     'https://unpkg.com/leaflet@1.3.1/dist/leaflet.js',
     'https://api.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.js',
@@ -18,7 +18,7 @@ const urlsToCache = [
 ];
 
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
         .then((cache) => {
@@ -28,12 +28,16 @@ self.addEventListener('install', (event) => {
     );
 });
 
-self.addEventListener('fetch', (event) => {
-    console.log(event.request.url)
-
+self.addEventListener('fetch', event => {
+    
     event.respondWith(
         caches.match(event.request).then(response => {
-            return response || fetch(event.request)
+            return response || fetch(event.request).then( res => {
+                return caches.open(CACHE_NAME).then (cache => {
+                    cache.put(event.request, res.clone());
+                    return res;
+                });
+            });
         })
     );
 });
