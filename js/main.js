@@ -8,7 +8,7 @@ console.log(`${window.location.pathname}sw.js`);
 if('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     console.log(`calebikhuohon.github.io/${window.location.pathname}sw.js`);
-    navigator.serviceWorker.register(`calebikhuohon.github.io/${window.location.pathname}sw.js`).then((registration) => {
+    navigator.serviceWorker.register(`calebikhuohon.github.io${window.location.pathname}sw.js`).then((registration) => {
       console.log('service worker registration successful with scop: ',registration.scope);
     }, (err) => {
       //registration failed
