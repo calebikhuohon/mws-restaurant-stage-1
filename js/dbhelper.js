@@ -9,7 +9,7 @@ class DBHelper {
    */
   static get DATABASE_URL() {
     const port = 8080 // Change this to your server port
-    return `http://192.168.8.100:8080/data/restaurants.json`;
+    return `https://calebikhuohon.github.io/mws-restaurant-stage-1/data/restaurants.json`;
   }
 
   /**
