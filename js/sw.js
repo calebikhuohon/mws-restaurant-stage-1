@@ -1,20 +1,20 @@
 const CACHE_NAME = 'restaurant-site-cache-v1';
 
 const urlsToCache = [
-    '/',
-    '/img',
-    '/js/dbhelper.js',
-    '/js/main.js',
-    '/js/restaurant_info.js',
-    '/index.html',
-    'restaurant.html',
-    'css/styles.css',
-    '/data/restaurants.json',
+    './',
+    './images',
+    './js/dbhelper.js',
+    './js/main.js',
+    './js/restaurant_info.js',
+    './index.html',
+    './restaurant.html',
+    './css/styles.css',
+    './data/restaurants.json',
+    '//normalize-css.googlecode.com/svn/trunk/normalize.css',
     'https://unpkg.com/leaflet@1.3.1/dist/leaflet.css',
+    'https://unpkg.com/leaflet@1.3.1/dist/leaflet.js',
     'https://api.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.js',
-    'https://api.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.css',
-    'https://fonts.googleapis.com/css?family=Roboto'
-    
+    'https://api.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.css'
 ];
 
 
