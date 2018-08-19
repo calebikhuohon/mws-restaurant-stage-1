@@ -8,17 +8,17 @@ module.exports = function (grunt) {
           sizes: [{
               width: 600,
               suffix: '_small',
-              quality: 30
+              quality: 40
             },
             {
               width: 900,
               suffix: '_medium',
-              quality: 30
+              quality: 40
             },
             {
               width: 1600,
               suffix: '_large',
-              quality: 30
+              quality: 40
             }
           ]
         },
