@@ -44,7 +44,7 @@ self.addEventListener('activate', (event) => {
         caches.keys().then(keyList => {
             Promise.all(
                 keyList.map(key => {
-                    if (key !== cacheName) {
+                    if (key !== CACHE_NAME) {
                         caches.delete(key);
                         console.log(`deleted ${key}`)
                     }
