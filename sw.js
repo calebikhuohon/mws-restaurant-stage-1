@@ -21,58 +21,35 @@ const urlsToCache = [
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('[Service worker] caching all files');
-                cache.addAll(urlsToCache);
-            }).then(() => self.skipWaiting()).catch(err => console.log('error occured while caching files: ', err))
+        .then((cache) => {
+            console.log('[Service worker] caching all files');
+            cache.addAll(urlsToCache);
+        }).then(() => self.skipWaiting()).catch(err => console.log('error occured while caching files: ', err))
     );
 });
 
 self.addEventListener('fetch', (event) => {
+    console.log(event.request.url)
+
     event.respondWith(
-        caches.match(event.request)
-            .then((response) => {
-                //cache hit - return response
-                if(response) {
-                    return response;
-                }
-
-                //clone the request
-                let fetchRequest = event.request.clone();
-
-                return fetch(fetchRequest)
-                    .then((response) => {
-                        //Check if we received a valid response
-                        if(!response || response.status != 200 ) {
-                            return response;
-                        }
-                    }
-                );
-
-                //clone the response 
-                let responseToCache = response.clone();
-
-                caches.open(CACHE_NAME)
-                    .then((cache) => {
-                        cache.put(event.request, responseToCache);
-                    });
-                    return response;
-
-                
-            })
+        caches.match(event.request).then(response => {
+            return response || fetch(event.request)
+        })
     );
 });
 
 
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys(). then(keyList => {
-            return Promise.all(
+        caches.keys().then(keyList => {
+            Promise.all(
                 keyList.map(key => {
-                    caches.delete(key);
-                    console.log(`deleted ${key}`);
+                    if (key !== cacheName) {
+                        caches.delete(key);
+                        console.log(`deleted ${key}`)
+                    }
                 })
-            )
+            );
         })
-    )
+    );
 })
