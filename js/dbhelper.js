@@ -9,13 +9,16 @@ class DBHelper {
    * IndexDB initialization
    */
 
+  static dbPromise() {
+    return idb.open('restaurants', 1, upgradeDB => {
+      switch (upgradeDB.oldVersion) {
+        case 0:
+          const keyValStore = upgradeDB.createObjectStore('restaurants');
+      }
+    });
 
-  dbPromise = idb.open('restaurants', 1, upgradeDB => {
-    switch (upgradeDB.oldVersion) {
-      case 0:
-        const keyValStore = upgradeDB.createObjectStore('restaurants');
-    }
-  });
+  }
+
 
 
 
@@ -41,28 +44,28 @@ class DBHelper {
         const restaurants = json;
         callback(null, restaurants);
 
-        dbPromise.then(db => {
-          let tx = db.transaction('restaurants','readwrite');
-          let restaurantStore = tx.objectStore('restaurants');
-          restaurantStore.put(restaurants, all);
-          return tx.complete;
+        DBHelper.dbPromise.then(db => {
+            let tx = db.transaction('restaurants', 'readwrite');
+            let restaurantStore = tx.objectStore('restaurants');
+            restaurantStore.put(restaurants, all);
+            return tx.complete;
 
-        }).then(() => console.log('query added to db'))
-        .catch(err => console.log('adding query to db failed',err));
+          }).then(() => console.log('query added to db'))
+          .catch(err => console.log('adding query to db failed', err));
 
       } else { // Oops!. Got an error from server.
         // const error = (`Request failed. Returned status of ${xhr.status}`);
         // callback(error, null);
 
         console.log('offline. Query will be fetched from idb');
-        dbPromise.then(db => {
-          const restaurants ;
+        DBHelper.dbPromise.then(db => {
+          const restaurants;
           let tx = db.transaction('restaurants', 'readwrite');
           let restaurantStore = tx.objectStore('restaurants');
           return restaurantStore.get(restaurants)
             .then(res => {
-                console.log(res);
-                callback(null, res);
+              console.log(res);
+              callback(null, res);
             });
         });
       }
