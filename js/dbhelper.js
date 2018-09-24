@@ -59,10 +59,10 @@ class DBHelper {
 
         console.log('offline. Query will be fetched from idb');
         DBHelper.dbPromise.then(db => {
-          const restaurants;
+         
           let tx = db.transaction('restaurants', 'readwrite');
           let restaurantStore = tx.objectStore('restaurants');
-          return restaurantStore.get(restaurants)
+          return restaurantStore.get()
             .then(res => {
               console.log(res);
               callback(null, res);
