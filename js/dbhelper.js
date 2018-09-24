@@ -47,7 +47,8 @@ class DBHelper {
       if (xhr.status === 200 && navigator.onLine) { // Got a success response from server!
         const json = JSON.parse(xhr.responseText);
         const restaurants = json;
-
+        callback(null, restaurants);
+        
         dbPromise.then(db => {
             let tx = db.transaction('restaurants', 'readwrite');
             let restaurantStore = tx.objectStore('restaurants');
@@ -56,10 +57,8 @@ class DBHelper {
 
           }).then(() => console.log('query added to db'))
           .catch(err => console.log('adding query to db failed', err));
-        callback(null, restaurants);
-      } else { // Oops!. Got an error from server.
-        // const error = (`Request failed. Returned status of ${xhr.status}`);
-        //callback(error, null);
+       
+      } else if (!navigator.onLine) {
 
         console.log('offline. Query will be fetched from idb');
         dbPromise.then(db => {
@@ -72,6 +71,10 @@ class DBHelper {
               callback(null, res);
             });
         });
+      } else {
+        // Oops!. Got an error from server.
+        const error = (`Request failed. Returned status of ${xhr.status}`);
+        callback(error, null);
       }
     };
     xhr.send();
