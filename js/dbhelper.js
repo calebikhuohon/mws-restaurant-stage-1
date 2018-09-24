@@ -1,7 +1,23 @@
 /**
  * Common database helper functions.
  */
+
+
 class DBHelper {
+
+  /**
+   * IndexDB initialization
+   */
+
+
+  dbPromise = idb.open('restaurants', 1, upgradeDB => {
+    switch (upgradeDB.oldVersion) {
+      case 0:
+        const keyValStore = upgradeDB.createObjectStore('restaurants');
+    }
+  });
+
+
 
   /**
    * Database URL.
@@ -10,7 +26,7 @@ class DBHelper {
   static get DATABASE_URL() {
     const port = 1337 // Change this to your server port
     //return `https://calebikhuohon.github.io/mws-restaurant-stage-1/data/restaurants.json`;
-    return `http://localhost:1337/restaurants`;
+    return `http://localhost:${port}/restaurants`;
   }
 
   /**
@@ -20,13 +36,35 @@ class DBHelper {
     let xhr = new XMLHttpRequest();
     xhr.open('GET', DBHelper.DATABASE_URL);
     xhr.onload = () => {
-      if (xhr.status === 200) { // Got a success response from server!
+      if (xhr.status === 200 && navigator.onLine) { // Got a success response from server!
         const json = JSON.parse(xhr.responseText);
         const restaurants = json;
         callback(null, restaurants);
+
+        dbPromise.then(db => {
+          let tx = db.transaction('restaurants','readwrite');
+          let restaurantStore = tx.objectStore('restaurants');
+          restaurantStore.put(restaurants, all);
+          return tx.complete;
+
+        }).then(() => console.log('query added to db'))
+        .catch(err => console.log('adding query to db failed',err));
+
       } else { // Oops!. Got an error from server.
-        const error = (`Request failed. Returned status of ${xhr.status}`);
-        callback(error, null);
+        // const error = (`Request failed. Returned status of ${xhr.status}`);
+        // callback(error, null);
+
+        console.log('offline. Query will be fetched from idb');
+        dbPromise.then(db => {
+          const restaurants ;
+          let tx = db.transaction('restaurants', 'readwrite');
+          let restaurantStore = tx.objectStore('restaurants');
+          return restaurantStore.get(restaurants)
+            .then(res => {
+                console.log(res);
+                callback(null, res);
+            });
+        });
       }
     };
     xhr.send();
@@ -152,7 +190,7 @@ class DBHelper {
    */
   static imageUrlForRestaurant(restaurant) {
     const images = `./images/${restaurant.photograph.substr(0,1)}`;
-    
+
     return {
       small: `${images}-600_small.jpg`,
       medium: `${images}-900_medium.jpg`,
@@ -161,20 +199,20 @@ class DBHelper {
     // return (`/img/${restaurant.photograph}`);
   }
 
-  
+
   /**
    * Map marker for a restaurant.
    */
-   static mapMarkerForRestaurant(restaurant, map) {
+  static mapMarkerForRestaurant(restaurant, map) {
     // https://leafletjs.com/reference-1.3.0.html#marker  
-    const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
-      {title: restaurant.name,
+    const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng], {
+      title: restaurant.name,
       alt: restaurant.name,
       url: DBHelper.urlForRestaurant(restaurant)
-      })
-      marker.addTo(newMap);
+    })
+    marker.addTo(newMap);
     return marker;
-  } 
+  }
   /* static mapMarkerForRestaurant(restaurant, map) {
     const marker = new google.maps.Marker({
       position: restaurant.latlng,
@@ -187,4 +225,3 @@ class DBHelper {
   } */
 
 }
-
