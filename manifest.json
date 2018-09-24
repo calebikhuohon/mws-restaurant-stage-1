@@ -1,0 +1,11 @@
+
+
+{
+    "short_name": "Restaurants",
+    "name": "Restaurant Reviews",
+    "start_url": "/mws-restaurant-stage-1/",
+    "background_color": "#252831",
+    "display":"standalone",
+    "theme_color":"#252831"
+
+}
