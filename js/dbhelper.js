@@ -1,7 +1,12 @@
 /**
  * Common database helper functions.
  */
-
+const dbPromise = idb.open('restaurants', 1, upgradeDB => {
+  switch (upgradeDB.oldVersion) {
+    case 0:
+      const keyValStore = upgradeDB.createObjectStore('restaurants');
+  }
+});
 
 class DBHelper {
 
@@ -9,15 +14,15 @@ class DBHelper {
    * IndexDB initialization
    */
 
-  static dbPromise() {
-    return idb.open('restaurants', 1, upgradeDB => {
-      switch (upgradeDB.oldVersion) {
-        case 0:
-          const keyValStore = upgradeDB.createObjectStore('restaurants');
-      }
-    });
+  // static dbPromise() {
+  //   return idb.open('restaurants', 1, upgradeDB => {
+  //     switch (upgradeDB.oldVersion) {
+  //       case 0:
+  //         const keyValStore = upgradeDB.createObjectStore('restaurants');
+  //     }
+  //   });
 
-  }
+  // }
 
 
 
@@ -43,7 +48,7 @@ class DBHelper {
         const json = JSON.parse(xhr.responseText);
         const restaurants = json;
 
-        DBHelper.dbPromise.then(db => {
+        dbPromise.then(db => {
             let tx = db.transaction('restaurants', 'readwrite');
             let restaurantStore = tx.objectStore('restaurants');
             restaurantStore.put(restaurants, all);
@@ -57,7 +62,7 @@ class DBHelper {
         //callback(error, null);
 
         console.log('offline. Query will be fetched from idb');
-        DBHelper.dbPromise.then(db => {
+        dbPromise.then(db => {
 
           let tx = db.transaction('restaurants', 'readwrite');
           let restaurantStore = tx.objectStore('restaurants');
