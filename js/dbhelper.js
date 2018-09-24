@@ -66,7 +66,7 @@ class DBHelper {
           let restaurantStore = tx.objectStore('restaurants');
           return restaurantStore.get()
             .then(res => {
-              console.log(res);
+              console.log('data fetched from idb');
               callback(null, res);
             });
         });
