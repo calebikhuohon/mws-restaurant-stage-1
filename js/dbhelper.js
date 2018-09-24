@@ -55,7 +55,7 @@ class DBHelper {
 
       } else { // Oops!. Got an error from server.
         // const error = (`Request failed. Returned status of ${xhr.status}`);
-        // callback(error, null);
+         callback(error, null);
 
         console.log('offline. Query will be fetched from idb');
         DBHelper.dbPromise.then(db => {
