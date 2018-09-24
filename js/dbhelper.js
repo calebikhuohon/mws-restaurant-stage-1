@@ -51,7 +51,7 @@ class DBHelper {
         dbPromise.then(db => {
             let tx = db.transaction('restaurants', 'readwrite');
             let restaurantStore = tx.objectStore('restaurants');
-            restaurantStore.put(restaurants, all);
+            restaurantStore.put(restaurants, 'all');
             return tx.complete;
 
           }).then(() => console.log('query added to db'))
