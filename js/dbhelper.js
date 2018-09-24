@@ -33,8 +33,8 @@ class DBHelper {
    */
   static get DATABASE_URL() {
     const port = 1337 // Change this to your server port
-    return `https://calebikhuohon.github.io/mws-restaurant-stage-1/data/restaurants.json`;
-    //return `http://localhost:${port}/restaurants`;
+    //return `https://calebikhuohon.github.io/mws-restaurant-stage-1/data/restaurants.json`;
+    return `http://localhost:${port}/restaurants`;
   }
 
   /**
@@ -47,8 +47,7 @@ class DBHelper {
       if (xhr.status === 200 && navigator.onLine) { // Got a success response from server!
         const json = JSON.parse(xhr.responseText);
         const restaurants = json;
-        callback(null, restaurants);
-        
+
         dbPromise.then(db => {
             let tx = db.transaction('restaurants', 'readwrite');
             let restaurantStore = tx.objectStore('restaurants');
@@ -57,7 +56,7 @@ class DBHelper {
 
           }).then(() => console.log('query added to db'))
           .catch(err => console.log('adding query to db failed', err));
-       
+        callback(null, restaurants);
       } else if (!navigator.onLine) {
 
         console.log('offline. Query will be fetched from idb');
