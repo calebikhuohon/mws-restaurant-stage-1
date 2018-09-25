@@ -1,9 +1,9 @@
-const restaurants,
+let restaurants,
   neighborhoods,
-  cuisines
-const newMap
-const markers = []
-const deferredPrompt
+  cuisines;
+var newMap;
+var markers = [];
+let deferredPrompt;
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
