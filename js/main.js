@@ -5,34 +5,36 @@ const newMap
 const markers = []
 let deferredPrompt
 
-let btnAdd = document.createElement('a');
-btnAdd.innerHTML = 'Add To Home Screen';
 
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  btnAdd.style.display = 'block';
-});
 
-btnAdd.addEventListener('click', e => {
-  btnAdd.style.display = 'none';
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice
-    .then(choiceResult => {
-      if(choiceResult.outcome === 'accepted') {
-        console.log('User accepted the A2HS prompt');
-      } else {
-        console.log('User dismissed the A2HS prompt');
-      }
-      deferredPrompt = null;
-    });
-});
-
-if('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-   
+
     navigator.serviceWorker.register(`${window.location.pathname}sw.js`).then((registration) => {
-      console.log('service worker registration successful with scope: ',registration.scope);
+      console.log('service worker registration successful with scope: ', registration.scope);
+      
+      let btnAdd = document.createElement('a');
+      btnAdd.innerHTML = 'Add To Home Screen';
+
+      window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        deferredPrompt = e;
+        btnAdd.style.display = 'block';
+      });
+
+      btnAdd.addEventListener('click', e => {
+        btnAdd.style.display = 'none';
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice
+          .then(choiceResult => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('User accepted the A2HS prompt');
+            } else {
+              console.log('User dismissed the A2HS prompt');
+            }
+            deferredPrompt = null;
+          });
+      });
     }, (err) => {
       //registration failed
       console.log('service worker registration failed: ', err);
@@ -109,10 +111,10 @@ fillCuisinesHTML = (cuisines = self.cuisines) => {
  */
 initMap = () => {
   self.newMap = L.map('map', {
-        center: [40.722216, -73.987501],
-        zoom: 12,
-        scrollWheelZoom: false
-      });
+    center: [40.722216, -73.987501],
+    zoom: 12,
+    scrollWheelZoom: false
+  });
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
     mapboxToken: 'pk.eyJ1IjoiY2FsZWJpa2h1b2hvbiIsImEiOiJjamtlZmVzaW8zenBtM3FtcW9xbm5qcjV3In0.AQLRZAE3loBBmHxLkA1WUw',
     maxZoom: 18,
@@ -195,7 +197,7 @@ createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
 
   const image = document.createElement('img');
- 
+
   imageList = DBHelper.imageUrlForRestaurant(restaurant);
   image.src = imageList.medium;
   image.className = 'restaurant-img';
@@ -235,13 +237,14 @@ addMarkersToMap = (restaurants = self.restaurants) => {
     // Add marker to the map
     const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.newMap);
     marker.on("click", onClick);
+
     function onClick() {
       window.location.href = marker.options.url;
     }
     self.markers.push(marker);
   });
 
-} 
+}
 /* addMarkersToMap = (restaurants = self.restaurants) => {
   restaurants.forEach(restaurant => {
     // Add marker to the map
@@ -252,4 +255,3 @@ addMarkersToMap = (restaurants = self.restaurants) => {
     self.markers.push(marker);
   });
 } */
-
