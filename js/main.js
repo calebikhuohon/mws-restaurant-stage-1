@@ -1,7 +1,7 @@
 let restaurants,
   neighborhoods,
   cuisines
-const newMap
+let newMap
 const markers = []
 let deferredPrompt
 
@@ -12,7 +12,7 @@ if ('serviceWorker' in navigator) {
 
     navigator.serviceWorker.register(`${window.location.pathname}sw.js`).then((registration) => {
       console.log('service worker registration successful with scope: ', registration.scope);
-      
+
       let btnAdd = document.createElement('a');
       btnAdd.innerHTML = 'Add To Home Screen';
 
