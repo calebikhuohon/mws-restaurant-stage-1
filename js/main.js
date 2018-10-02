@@ -1,9 +1,9 @@
 let restaurants,
   neighborhoods,
-  cuisines;
-var newMap;
-var markers = [];
-let deferredPrompt;
+  cuisines
+var newMap
+var markers = []
+let deferredPrompt
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
