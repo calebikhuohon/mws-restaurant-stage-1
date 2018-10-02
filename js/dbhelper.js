@@ -191,8 +191,10 @@ class DBHelper {
    */
   static imageUrlForRestaurant(restaurant) {
     fetch(DBHelper.DATABASE_URL).then(res => {
-      json.parse(res);
-      restaurant = res;
+      res.json();
+
+    }).then(json => {
+      restaurant = JSON.parse(json);
     });
     const images = `./images/${[restaurant].photograph.substr(0,1)}`;
     images.sub
@@ -211,9 +213,11 @@ class DBHelper {
   static mapMarkerForRestaurant(restaurant, map) {
     // https://leafletjs.com/reference-1.3.0.html#marker  
     fetch(DBHelper.DATABASE_URL).then(res => {
-      json.parse(res);
-      restaurant = res;
+      res.json();
+    }).then(json => {
+      restaurant = JSON.parse(json);
     });
+
     const marker = new L.marker([
       [restaurant][latlng][lat],
       [restaurant][latlng][lng]
