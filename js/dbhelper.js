@@ -14,7 +14,7 @@ class DBHelper {
    * IndexDB initialization
    */
 
- 
+
 
 
 
@@ -190,14 +190,18 @@ class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    
-    const images = `./images/${[restaurant].photograph.substr(0,1)}`;
+    fetch(DBHelper.DATABASE_URL).then(res => {
+      json.parse(res);
+      restaurant = res;
+      const images = `./images/${[restaurant][photograph]}`;
 
-    return {
-      small: `${images}-600_small.jpg`,
-      medium: `${images}-900_medium.jpg`,
-      large: `${images}-1600_large.jpg`
-    };
+      return {
+        small: `${images}-600_small.jpg`,
+        medium: `${images}-900_medium.jpg`,
+        large: `${images}-1600_large.jpg`
+      };
+    });
+
     // return (`/img/${restaurant.photograph}`);
   }
 
@@ -207,14 +211,21 @@ class DBHelper {
    */
   static mapMarkerForRestaurant(restaurant, map) {
     // https://leafletjs.com/reference-1.3.0.html#marker  
-    const marker = new L.marker([[restaurant].latlng.lat, [restaurant].latlng.lng],
-      {title: restaurant.name,
-      alt: restaurant.name,
-      url: DBHelper.urlForRestaurant(restaurant)
+    fetch(DBHelper.DATABASE_URL).then(res => {
+      json.parse(res);
+      restaurant = res;
+      const marker = new L.marker([
+        [restaurant][latlng][lat], [restaurant][latlng][lng]
+      ], {
+        title: restaurant.name,
+        alt: restaurant.name,
+        url: DBHelper.urlForRestaurant(restaurant)
       })
       marker.addTo(newMap);
-    return marker;
-  } 
+      return marker;
+    })
+
+  }
   /* static mapMarkerForRestaurant(restaurant, map) {
     const marker = new google.maps.Marker({
       position: restaurant.latlng,
