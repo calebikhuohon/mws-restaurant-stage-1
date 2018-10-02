@@ -193,15 +193,13 @@ class DBHelper {
     fetch(DBHelper.DATABASE_URL).then(res => {
       json.parse(res);
       restaurant = res;
-      const images = `./images/${[restaurant][photograph]}`;
-
-      return {
-        small: `${images}-600_small.jpg`,
-        medium: `${images}-900_medium.jpg`,
-        large: `${images}-1600_large.jpg`
-      };
     });
-
+    const images = `./images/${[restaurant][photograph]}`;
+    return {
+      small: `${images}-600_small.jpg`,
+      medium: `${images}-900_medium.jpg`,
+      large: `${images}-1600_large.jpg`
+    };
     // return (`/img/${restaurant.photograph}`);
   }
 
@@ -214,17 +212,17 @@ class DBHelper {
     fetch(DBHelper.DATABASE_URL).then(res => {
       json.parse(res);
       restaurant = res;
-      const marker = new L.marker([
-        [restaurant][latlng][lat], [restaurant][latlng][lng]
-      ], {
-        title: restaurant.name,
-        alt: restaurant.name,
-        url: DBHelper.urlForRestaurant(restaurant)
-      })
-      marker.addTo(newMap);
-      return marker;
+    });
+    const marker = new L.marker([
+      [restaurant][latlng][lat],
+      [restaurant][latlng][lng]
+    ], {
+      title: [restaurant][name],
+      alt: [restaurant][name],
+      url: DBHelper.urlForRestaurant(restaurant)
     })
-
+    marker.addTo(newMap);
+    return marker;
   }
   /* static mapMarkerForRestaurant(restaurant, map) {
     const marker = new google.maps.Marker({
