@@ -195,14 +195,15 @@ class DBHelper {
 
     }).then(json => {
       restaurant = JSON.parse(json);
+      const images = `./images/${[restaurant][photograph]}`;
+      images.sub
+      return {
+        small: `${images}-600_small.jpg`,
+        medium: `${images}-900_medium.jpg`,
+        large: `${images}-1600_large.jpg`
+      };
     });
-    const images = `./images/${[restaurant][photograph]}`;
-    images.sub
-    return {
-      small: `${images}-600_small.jpg`,
-      medium: `${images}-900_medium.jpg`,
-      large: `${images}-1600_large.jpg`
-    };
+
     // return (`/img/${restaurant.photograph}`);
   }
 
