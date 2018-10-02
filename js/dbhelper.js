@@ -14,15 +14,7 @@ class DBHelper {
    * IndexDB initialization
    */
 
-  // static dbPromise() {
-  //   return idb.open('restaurants', 1, upgradeDB => {
-  //     switch (upgradeDB.oldVersion) {
-  //       case 0:
-  //         const keyValStore = upgradeDB.createObjectStore('restaurants');
-  //     }
-  //   });
-
-  // }
+ 
 
 
 
@@ -198,7 +190,8 @@ class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    const images = `./images/${restaurant.photograph.substr(0,1)}`;
+    
+    const images = `./images/${[restaurant].photograph.substr(0,1)}`;
 
     return {
       small: `${images}-600_small.jpg`,
@@ -214,7 +207,7 @@ class DBHelper {
    */
   static mapMarkerForRestaurant(restaurant, map) {
     // https://leafletjs.com/reference-1.3.0.html#marker  
-    const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
+    const marker = new L.marker([[restaurant].latlng.lat, [restaurant].latlng.lng],
       {title: restaurant.name,
       alt: restaurant.name,
       url: DBHelper.urlForRestaurant(restaurant)
