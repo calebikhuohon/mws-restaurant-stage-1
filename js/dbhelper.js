@@ -196,7 +196,7 @@ class DBHelper {
     }).then(json => {
       restaurant = JSON.parse(json);
     });
-    const images = `./images/${[restaurant].photograph.substr(0,1)}`;
+    const images = `./images/${[restaurant][photograph]}`;
     images.sub
     return {
       small: `${images}-600_small.jpg`,
