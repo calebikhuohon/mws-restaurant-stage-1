@@ -34,10 +34,7 @@ a {
   text-decoration: none;
 }
 
-label {
-  margin: 0;
-  width: 0;
-}
+
 
 a:hover,
 a:focus {
