@@ -200,13 +200,16 @@ class DBHelper {
 
     }).then(json => {
       let restaurants = JSON.parse(json);
+      console.log(`[restaurants] ${restaurants}`)
 
       for (restaurant in restaurants) {
         images = `./images/${[restaurant][photograph]}`;
+        console.log('[images]',images);
       }
 
-
+      console.log('[outer scope]',images);
       return {
+        
         small: `${images}-600_small.jpg`,
         medium: `${images}-900_medium.jpg`,
         large: `${images}-1600_large.jpg`
