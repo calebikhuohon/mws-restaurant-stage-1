@@ -8,6 +8,9 @@ const dbPromise = idb.open('restaurants', 1, upgradeDB => {
   }
 });
 
+const images;
+const marker;
+
 class DBHelper {
 
   /**
@@ -189,13 +192,19 @@ class DBHelper {
   /**
    * Restaurant image URL.
    */
+
   static imageUrlForRestaurant(restaurant) {
+
     fetch(DBHelper.DATABASE_URL).then(res => {
       res.json();
 
     }).then(json => {
-      restaurant = JSON.parse(json);
-      const images = `./images/${[restaurant][photograph]}`;
+      let restaurants = JSON.parse(json);
+
+      for (restaurant in restaurants) {
+        images = `./images/${[restaurant][photograph]}`;
+      }
+
 
       return {
         small: `${images}-600_small.jpg`,
@@ -217,16 +226,18 @@ class DBHelper {
       res.json();
     }).then(json => {
       restaurant = JSON.parse(json);
-    });
 
-    const marker = new L.marker([
-      [restaurant][latlng][lat],
-      [restaurant][latlng][lng]
-    ], {
-      title: [restaurant][name],
-      alt: [restaurant][name],
-      url: DBHelper.urlForRestaurant(restaurant)
-    })
+      for (restaurant in restaurants) {
+        marker = new L.marker([
+          [restaurant][latlng][lat],
+          [restaurant][latlng][lng]
+        ], {
+          title: [restaurant][name],
+          alt: [restaurant][name],
+          url: DBHelper.urlForRestaurant(restaurant)
+        });
+      }
+    });
     marker.addTo(newMap);
     return marker;
   }
