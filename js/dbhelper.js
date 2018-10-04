@@ -196,26 +196,25 @@ class DBHelper {
   static imageUrlForRestaurant(restaurant) {
 
     fetch(DBHelper.DATABASE_URL).then(res => {
-      res.json();
-      console.log(res.json())
+      console.log(res.json());
+      return res.json().then(json => {
+        let restaurants = json;
+        console.log(`[restaurants] ${restaurants}`)
 
-    }).then(json => {
-      let restaurants = JSON.parse(json);
-      console.log(`[restaurants] ${restaurants}`)
+        for (restaurant in restaurants) {
+          images = `./images/${[restaurant][photograph]}`;
+          console.log('[images]', images);
+        }
 
-      for (restaurant in restaurants) {
-        images = `./images/${[restaurant][photograph]}`;
-        console.log('[images]',images);
-      }
+        console.log('[outer scope]', images);
+        return {
 
-      console.log('[outer scope]',images);
-      return {
-        
-        small: `${images}-600_small.jpg`,
-        medium: `${images}-900_medium.jpg`,
-        large: `${images}-1600_large.jpg`
-      };
-    });
+          small: `${images}-600_small.jpg`,
+          medium: `${images}-900_medium.jpg`,
+          large: `${images}-1600_large.jpg`
+        };
+      })
+    }).catch(err => console.log(err));
 
     // return (`/img/${restaurant.photograph}`);
   }
