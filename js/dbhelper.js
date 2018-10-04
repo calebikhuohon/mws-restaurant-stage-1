@@ -8,8 +8,8 @@ const dbPromise = idb.open('restaurants', 1, upgradeDB => {
   }
 });
 
-const images = null;
-const marker = null;
+
+
 
 class DBHelper {
 
@@ -195,27 +195,13 @@ class DBHelper {
 
   static imageUrlForRestaurant(restaurant) {
 
-    fetch(DBHelper.DATABASE_URL).then(res => {
-      console.log(res.json());
-      return res.json().then(json => {
-        let restaurants = json;
-        console.log(`[restaurants] ${restaurants}`)
+    let images = `./images/${restaurant.photograph}`;
 
-        for (restaurant in restaurants) {
-          images = `./images/${[restaurant][photograph]}`;
-          console.log('[images]', images);
-        }
-
-        console.log('[outer scope]', images);
-        return {
-
-          small: `${images}-600_small.jpg`,
-          medium: `${images}-900_medium.jpg`,
-          large: `${images}-1600_large.jpg`
-        };
-      })
-    }).catch(err => console.log(err));
-
+    return {
+      small: `${images}-600_small.jpg`,
+      medium: `${images}-900_medium.jpg`,
+      large: `${images}-1600_large.jpg`
+    };
     // return (`/img/${restaurant.photograph}`);
   }
 
@@ -225,22 +211,16 @@ class DBHelper {
    */
   static mapMarkerForRestaurant(restaurant, map) {
     // https://leafletjs.com/reference-1.3.0.html#marker  
-    fetch(DBHelper.DATABASE_URL).then(res => {
-      res.json();
-    }).then(json => {
-      restaurant = JSON.parse(json);
-
-      for (restaurant in restaurants) {
-        marker = new L.marker([
-          [restaurant][latlng][lat],
-          [restaurant][latlng][lng]
+   
+      const  marker = new L.marker([
+          restaurant.latlng.lat,
+          restaurant.latlng.lng
         ], {
-          title: [restaurant][name],
-          alt: [restaurant][name],
+          title: restaurant.name,
+          alt: restaurant.name,
           url: DBHelper.urlForRestaurant(restaurant)
         });
-      }
-    });
+     
     marker.addTo(newMap);
     return marker;
   }
