@@ -8,8 +8,8 @@ const dbPromise = idb.open('restaurants', 1, upgradeDB => {
   }
 });
 
-const images;
-const marker;
+const images = null;
+const marker = null;
 
 class DBHelper {
 
