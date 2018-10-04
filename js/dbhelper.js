@@ -197,6 +197,7 @@ class DBHelper {
 
     fetch(DBHelper.DATABASE_URL).then(res => {
       res.json();
+      console.log(res.json())
 
     }).then(json => {
       let restaurants = JSON.parse(json);
