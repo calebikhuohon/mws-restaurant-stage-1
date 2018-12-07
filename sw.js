@@ -29,11 +29,29 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
-    
+
+    if (event.request.method === 'POST') {
+        event.respondWith(
+            //try to send form data to server
+            fetch(event.request)
+            .catch(() => {
+                //If unsuccessful, post a message to notify user
+                self.clients.matchAll().then(function (clients) {
+                    clients.forEach(function (client) {
+                        client.postMessage({
+                            msg: "Post unsuccessful! Server will be updated when connection is re-established.",
+                            url: event.request.url
+                        });
+                    });
+                });
+            })
+        );
+    }
+
     event.respondWith(
         caches.match(event.request).then(response => {
-            return response || fetch(event.request).then( res => {
-                return caches.open(CACHE_NAME).then (cache => {
+            return response || fetch(event.request).then(res => {
+                return caches.open(CACHE_NAME).then(cache => {
                     cache.put(event.request, res.clone());
                     return res;
                 });

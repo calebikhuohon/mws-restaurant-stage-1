@@ -1,6 +1,11 @@
 /**
  * Common database helper functions.
  */
+
+  /**
+   * IndexDB initialization
+   */
+  
 const dbPromise = idb.open('restaurants', 1, upgradeDB => {
   switch (upgradeDB.oldVersion) {
     case 0:
@@ -13,9 +18,7 @@ const dbPromise = idb.open('restaurants', 1, upgradeDB => {
 
 class DBHelper {
 
-  /**
-   * IndexDB initialization
-   */
+ 
 
 
 

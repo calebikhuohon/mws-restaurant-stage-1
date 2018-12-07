@@ -4,6 +4,9 @@ var newMap;
 /**
  * Initialize map as soon as the page is loaded.
  */
+
+
+
 document.addEventListener('DOMContentLoaded', (event) => {
   initMap();
 });
@@ -88,7 +91,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
   const imageList = DBHelper.imageUrlForRestaurant(restaurant);
   const image = document.getElementById('restaurant-img');
-  
+
   image.src = imageList.medium;
   image.className = 'restaurant-img';
   image.alt = `${restaurant.name} Restaurant`;
@@ -139,14 +142,18 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
 
   if (!reviews) {
     const noReviews = document.createElement('p');
-    noReviews.innerHTML = 'No reviews yet!';
+    noReviews.innerHTML = 'No reviews yet! Create a review';
     container.appendChild(noReviews);
+    container.appendChild(createReviewForm());
     return;
   }
+
   const ul = document.getElementById('reviews-list');
+
   reviews.forEach(review => {
     ul.appendChild(createReviewHTML(review));
   });
+  ul.appendChild(createReviewForm());
   container.appendChild(ul);
 }
 
@@ -177,6 +184,160 @@ createReviewHTML = (review) => {
 
   return li;
 }
+
+/**
+ * Create a form to allow the user create a review
+ */
+
+createReviewForm = () => {
+  const form = document.createElement('form');
+  form.setAttribute('method', "post");
+  form.setAttribute('action', "http://localhost:1337/reviews/")
+
+  //label for reviewer's name
+  const nameLabel = document.createElement('label');
+  nameLabel.setAttribute('for', 'name');
+  nameLabel.innerHTML = 'Name: ';
+  form.appendChild(nameLabel);
+
+  //Input for reviewer's name
+  nameInput = document.createElement('input');
+  nameInput.setAttribute('id', 'name');
+  nameInput.type = 'text';
+  nameInput.setAttribute('placeholder', 'Please enter your name');
+  nameInput.setAttribute('autocomplete', 'given-name');
+  nameInput.setAttribute('name', 'name');
+  form.appendChild(nameInput);
+
+
+  //label for reviewer's comment
+  const commentLabel = document.createElement('label');
+  commentLabel.setAttribute('for', 'comment');
+  commentLabel.innerHTML = 'Comment: ';
+  form.appendChild(commentLabel);
+
+  //text area for reviewer's comment
+  const reviewText = document.createElement('textarea');
+  reviewText.setAttribute('id', 'comment');
+  reviewText.setAttribute('name', 'comment');
+  reviewText.setAttribute('class', 'comment');
+  form.appendChild(reviewText);
+
+  //label for rating
+  const ratingLabel = document.createElement('label');
+  ratingLabel.setAttribute('for', 'rating');
+  ratingLabel.innerHTML = 'Rating: ';
+  form.appendChild(ratingLabel);
+
+  //input for rating
+  const ratingInput = document.createElement('input');
+  ratingInput.setAttribute('type', 'number');
+  ratingInput.setAttribute('id', 'rating');
+  ratingInput.setAttribute('name', 'rating');
+  ratingInput.setAttribute('min', '1');
+  ratingInput.setAttribute('max', '5');
+  form.appendChild(ratingInput);
+
+
+  //date
+  const date = document.createElement('p');
+  date.innerHTML = new Date().toLocaleDateString();
+  date.name = 'date';
+  form.appendChild(date);
+
+  const button = document.createElement('button');
+  button.type = 'submit';
+  button.innerText = 'Submit Review';
+  form.appendChild(button);
+
+  form.addEventListener('submit', event => {
+    const headers = new Headers();
+    headers.set('Accept', 'application/json');
+
+    if(!navigator.onLine) {
+      failedPostListener();
+    }
+    //get form data
+    const formData = new FormData();
+    formData.append(form[0].name, form[0].value);
+    formData.append(form[1].name, form[1].value);
+    formData.append(form[2].name, form[2].value);
+    formData.append(form[3].name, form[3].value);
+
+    //make request
+    fetch('http://localhost:1337/reviews/', {
+      method: 'POST',
+      headers,
+      body: formData
+    })
+  });
+
+  document.getElementById('reviews-list').appendChild(form);
+  return form;
+
+
+}
+
+failedPostListener = () => {
+  navigator.serviceWorker.addEventListener('message', event => {
+    const form = document.getElementById('form');
+
+    //display message from service worker
+    alert(event.data.message);
+
+    idb.open('reviews', 1).then(db => {
+      const tx = db.transaction('form_data', 'readwrite');
+      const store = tx.objectStore('form_data');
+      store.put({
+        name: `${form[0].value}`,
+        comment: `${form[1].value}`,
+        rating: `${form[2].value}`,
+        date: `${form[3].value}`
+      });
+    });
+  });
+}
+
+/**
+ * listen for network status
+ */
+
+
+
+
+
+window.addEventListener('online', handleConnectionChange = (event) => {
+  if (event.type === 'online') {
+    const headers = new Headers();
+    headers.set('Accept', 'application/json');
+
+    return idb.open('reviews', 1).then(db => {
+      const tx = db.transaction([form_data], 'readonly');
+      const store = tx.objectStore('form_data');
+      return store.getAll();
+    }).then(data => {
+      const formData = new FormData();
+      formData.append('name', data['name']);
+      formData.append('comment', data['comment']);
+      formData.append('rating', data['rating']);
+      formData.append('date', data['date']);
+
+      fetch('', {
+        method: 'POST',
+        headers,
+        body: formData
+      }).then(() => {
+        //delete locally stored data after successful post to server
+        idb.open('reviews', 1).then(db => {
+          const tx = db.transaction('form_data', 'readwrite');
+          const store = tx.objectStore('form_data');
+          store.clear();
+        })
+      })
+    });
+
+  }
+});
 
 /**
  * Add restaurant name to the breadcrumb navigation menu
