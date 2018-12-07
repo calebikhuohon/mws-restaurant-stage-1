@@ -251,6 +251,8 @@ createReviewForm = () => {
   form.appendChild(button);
 
   form.addEventListener('submit', event => {
+    event.preventDefault();
+    
     const headers = new Headers();
     headers.set('Accept', 'application/json');
 
