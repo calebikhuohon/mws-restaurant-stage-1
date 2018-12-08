@@ -9,7 +9,7 @@
 const dbPromise = idb.open('restaurants', 1, upgradeDB => {
   switch (upgradeDB.oldVersion) {
     case 0:
-      const keyValStore = upgradeDB.createObjectStore('restaurants');
+      return upgradeDB.createObjectStore('restaurants');
   }
 });
 
@@ -17,14 +17,6 @@ const dbPromise = idb.open('restaurants', 1, upgradeDB => {
 
 
 class DBHelper {
-
- 
-
-
-
-
-
-
   /**
    * Database URL.
    * Change this to restaurants.json file location on your server.

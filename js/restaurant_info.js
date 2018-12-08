@@ -5,7 +5,18 @@ var newMap;
  * Initialize map as soon as the page is loaded.
  */
 
+const reviewsDbPromise = idb.open('reviews', 1, db => {
+  switch (db.oldVersion) {
+    case 0:
+      db.createObjectStore('restaurants');
+  }
 
+  if (!upgradeDb.objectStoreNames.contains("defered-reviews")) {
+    upgradeDb.createObjectStore("defered-reviews", {
+      keyPath: "id"
+    });
+  }
+});
 
 document.addEventListener('DOMContentLoaded', (event) => {
   initMap();
@@ -185,6 +196,18 @@ createReviewHTML = (review) => {
   return li;
 }
 
+
+/**
+ * update reviews
+ */
+
+updateReviewsHTML = review => {
+  const ul = document.getElementById("reviews-list");
+
+  ul.appendChild(createReviewHTML(review));
+}
+
+
 /**
  * Create a form to allow the user create a review
  */
@@ -219,7 +242,7 @@ createReviewForm = () => {
   //text area for reviewer's comment
   const reviewText = document.createElement('textarea');
   reviewText.setAttribute('id', 'comment');
-  reviewText.setAttribute('name', 'comment');
+  reviewText.setAttribute('name', 'comments');
   reviewText.setAttribute('class', 'comment');
   form.appendChild(reviewText);
 
@@ -239,12 +262,6 @@ createReviewForm = () => {
   form.appendChild(ratingInput);
 
 
-  //date
-  const date = document.createElement('p');
-  date.innerHTML = new Date().toLocaleDateString();
-  date.name = 'date';
-  form.appendChild(date);
-
   const button = document.createElement('button');
   button.type = 'submit';
   button.innerText = 'Submit Review';
@@ -252,11 +269,16 @@ createReviewForm = () => {
 
   form.addEventListener('submit', event => {
     event.preventDefault();
-    
+
+    if (nameInput.value === '' || reviewText.value === '' || ratingInput.value === '') {
+      alert('all fields are required');
+      return;
+    }
+
     const headers = new Headers();
     headers.set('Accept', 'application/json');
 
-    if(!navigator.onLine) {
+    if (!navigator.onLine) {
       failedPostListener();
     }
     //get form data
@@ -264,21 +286,49 @@ createReviewForm = () => {
     formData.append(form[0].name, form[0].value);
     formData.append(form[1].name, form[1].value);
     formData.append(form[2].name, form[2].value);
-    formData.append(form[3].name, form[3].value);
+    formData.append('date', new Date().toLocaleDateString());
+    formData.append('restaurant_id', self.restaurant.id)
+    for (var key of formData.entries()) {
+      console.log(key[0] + ': ' + key[1])
+    }
+
+    let jsonObject = {};
+    for (const [key, value] of formData.entries()) {
+      jsonObject[key] = value;
+    }
+    console.log('jsonObject', jsonObject);
 
     //make request
     fetch('http://localhost:1337/reviews/', {
-      method: 'POST',
-      headers,
-      body: formData
-    })
+        method: 'POST',
+        headers,
+        body: JSON.stringify(jsonObject)
+      })
+      .then(res => {
+        res.json().then(data => {
+          updateReviewsHTML(data);
+          alert('successfully added your review');
+          const unique = Math.random().toString(36).substr(1, 9);
+          //add a unique property to response
+          data.unique = unique;
+          console.log('data', data);
+
+          //save review in indexedDB
+          reviewsDbPromise.then(db => {
+              const tx = db.transaction('reviews', 'readwrite');
+              const store = tx.objectStore('reviews');
+              store.put(data);
+              return tx.complete;
+            }).then(() => console.log('review saved to IDB'))
+            .catch(err => console.log('unable to save reviews to IDB', err))
+        });
+      });
   });
 
   document.getElementById('reviews-list').appendChild(form);
   return form;
-
-
 }
+
 
 failedPostListener = () => {
   navigator.serviceWorker.addEventListener('message', event => {
@@ -287,33 +337,54 @@ failedPostListener = () => {
     //display message from service worker
     alert(event.data.message);
 
-    idb.open('reviews', 1).then(db => {
-      const tx = db.transaction('form_data', 'readwrite');
-      const store = tx.objectStore('form_data');
+    reviewsDbPromise.then(db => {
+      db.createObjectStore('deferred-reviews');
+      const tx = db.transaction('deferred-reviews', 'readwrite');
+      const store = tx.objectStore('deferred-reviews');
       store.put({
         name: `${form[0].value}`,
         comment: `${form[1].value}`,
         rating: `${form[2].value}`,
-        date: `${form[3].value}`
+        date: new Date().toLocaleDateString(),
+        restaurant_id: self.restaurant.id,
+        unique: Math.random().toString(36).substr(1, 9)
       });
-    });
+      return tx.complete;
+    }).then(() => {
+      //make input fields empty
+      form[0].value = '';
+      form[1].value = '';
+      form[2].value = '';
+      form[3].innerHTML = '';
+    }).catch(err => console.log(err));
+
+    reviewsDbPromise.then(db => {
+        const tx = db.transaction("reviews", "readwrite");
+        const store = tx.objectStore("reviews");
+
+        store.put({
+          name: `${form[0].value}`,
+          comment: `${form[1].value}`,
+          rating: `${form[2].value}`,
+          date: new Date().toLocaleDateString(),
+          restaurant_id: self.restaurant.id,
+          unique: Math.random().toString(36).substr(1, 9)
+        });
+        return tx.complete;
+      }).then(() => console.log('review saved to IDB'))
+      .catch(error => console.log('Unable to save review to IDB', error));
   });
 }
 
 /**
  * listen for network status
  */
-
-
-
-
-
-window.addEventListener('online', handleConnectionChange = (event) => {
+window.addEventListener('online', handleConnectionChange = event => {
   if (event.type === 'online') {
     const headers = new Headers();
     headers.set('Accept', 'application/json');
 
-    return idb.open('reviews', 1).then(db => {
+    return reviewsDbPromise.then(db => {
       const tx = db.transaction([form_data], 'readonly');
       const store = tx.objectStore('form_data');
       return store.getAll();
@@ -330,7 +401,7 @@ window.addEventListener('online', handleConnectionChange = (event) => {
         body: formData
       }).then(() => {
         //delete locally stored data after successful post to server
-        idb.open('reviews', 1).then(db => {
+        reviewsDbPromise.then(db => {
           const tx = db.transaction('form_data', 'readwrite');
           const store = tx.objectStore('form_data');
           store.clear();
