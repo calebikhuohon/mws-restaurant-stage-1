@@ -172,6 +172,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
 
   form.addEventListener('submit', event => {
     event.preventDefault();
+    console.log('inside event listener');
 
     if (name.value === '' || comment.value === '' || rating.value === '') {
       toast('all fields are required');
@@ -192,15 +193,15 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
         fetch('http://localhost:1337/reviews/', {
             method: 'POST',
             headers,
-            body: JSON.stringify(jsonObject)
+            body: JSON.stringify(review)
           })
           .then(res => res.json())
-          .then(review, (error, data) => {
+          .then(review => {
             if (error) {
               console.log(error);
             }
             // udate reviews list
-            updateReviewsHTML(data);
+            updateReviewsHTML(review);
             toast("Sucessfully added your review"); // show success message
 
             const unique = Math.random().toString(36).substr(2, 9);
