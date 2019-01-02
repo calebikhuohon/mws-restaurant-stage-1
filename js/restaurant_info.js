@@ -1,21 +1,17 @@
 let restaurant;
 var newMap;
 
-/**
- * Initialize map as soon as the page is loaded.
- */
-
 const reviewsDbPromise = idb.open('reviews', 1, db => {
   switch (db.oldVersion) {
     case 0:
       db.createObjectStore('reviews');
   }
 
-  if (!upgradeDb.objectStoreNames.contains("defered-reviews")) {
-    upgradeDb.createObjectStore("defered-reviews", {
-      keyPath: "id"
-    });
-  }
+  // if (!db.objectStoreNames.contains("defered-reviews")) {
+  //   db.createObjectStore("defered-reviews", {
+  //     keyPath: "id"
+  //   });
+  // }
 });
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -225,13 +221,12 @@ toast = message => {
 createReviewForm = () => {
   const form = document.createElement('form');
   form.setAttribute('method', "post");
-  form.setAttribute('action', "http://localhost:1337/reviews/")
-  form.setAttribute('class', 'form');
+  form.setAttribute('action', "http://localhost:1337/reviews/");
+
   //label for reviewer's name
   const nameLabel = document.createElement('label');
   nameLabel.setAttribute('for', 'name');
   nameLabel.innerHTML = 'Name: ';
-  nameLabel.setAttribute('class', 'label');
   form.appendChild(nameLabel);
 
   //Input for reviewer's name
@@ -241,7 +236,6 @@ createReviewForm = () => {
   nameInput.setAttribute('placeholder', 'Please enter your name');
   nameInput.setAttribute('autocomplete', 'given-name');
   nameInput.setAttribute('name', 'name');
-  nameInput.setAttribute('class', 'input');
   form.appendChild(nameInput);
 
 
@@ -249,7 +243,6 @@ createReviewForm = () => {
   const commentLabel = document.createElement('label');
   commentLabel.setAttribute('for', 'comment');
   commentLabel.innerHTML = 'Comment: ';
-  commentLabel.setAttribute('class', 'label');
   form.appendChild(commentLabel);
 
   //text area for reviewer's comment
@@ -257,14 +250,12 @@ createReviewForm = () => {
   reviewText.setAttribute('id', 'comment');
   reviewText.setAttribute('name', 'comments');
   reviewText.setAttribute('class', 'comment');
-  reviewText.setAttribute('class', 'textarea');
   form.appendChild(reviewText);
 
   //label for rating
   const ratingLabel = document.createElement('label');
   ratingLabel.setAttribute('for', 'rating');
   ratingLabel.innerHTML = 'Rating: ';
-  ratingLabel.setAttribute('class', 'label');
   form.appendChild(ratingLabel);
 
   //input for rating
@@ -274,7 +265,6 @@ createReviewForm = () => {
   ratingInput.setAttribute('name', 'rating');
   ratingInput.setAttribute('min', '1');
   ratingInput.setAttribute('max', '5');
-  ratingInput.setAttribute('class', 'input');
   form.appendChild(ratingInput);
 
 
@@ -361,7 +351,14 @@ createReviewForm = () => {
                     .then(() => {
                       showToast("Review saved for background syncing");
                       data.createdAt = date;
-                      updateReviewsHTML(review);
+                      updateReviewsHTML({
+                        name: `${form[0].value}`,
+                        comment: `${form[1].value}`,
+                        rating: `${form[2].value}`,
+                        date: new Date().toLocaleDateString(),
+                        restaurant_id: self.restaurant.id,
+                        unique: Math.random().toString(36).substr(1, 9)
+                      });
                       // set input fields to empty
                       name.value = "";
                       rating.value = "";
@@ -384,88 +381,6 @@ createReviewForm = () => {
   return form;
 }
 
-
-// failedPostListener = () => {
-//   navigator.serviceWorker.addEventListener('message', event => {
-//     const form = document.getElementById('form');
-
-//     //display message from service worker
-//     alert(event.data.message);
-
-//     reviewsDbPromise.then(db => {
-//       db.createObjectStore('deferred-reviews');
-//       const tx = db.transaction('deferred-reviews', 'readwrite');
-//       const store = tx.objectStore('deferred-reviews');
-//       store.put({
-//         name: `${form[0].value}`,
-//         comment: `${form[1].value}`,
-//         rating: `${form[2].value}`,
-//         date: new Date().toLocaleDateString(),
-//         restaurant_id: self.restaurant.id,
-//         unique: Math.random().toString(36).substr(1, 9)
-//       });
-//       return tx.complete;
-//     }).then(() => {
-//       //make input fields empty
-//       form[0].value = '';
-//       form[1].value = '';
-//       form[2].value = '';
-//       form[3].innerHTML = '';
-//     }).catch(err => console.log(err));
-
-//     reviewsDbPromise.then(db => {
-//         const tx = db.transaction("reviews", "readwrite");
-//         const store = tx.objectStore("reviews");
-
-//         store.put({
-//           name: `${form[0].value}`,
-//           comment: `${form[1].value}`,
-//           rating: `${form[2].value}`,
-//           date: new Date().toLocaleDateString(),
-//           restaurant_id: self.restaurant.id,
-//           unique: Math.random().toString(36).substr(1, 9)
-//         });
-//         return tx.complete;
-//       }).then(() => console.log('review saved to IDB'))
-//       .catch(error => console.log('Unable to save review to IDB', error));
-//   });
-// }
-
-/**
- * listen for network status
- */
-// window.addEventListener('online', handleConnectionChange = event => {
-//   if (event.type === 'online') {
-//     const headers = new Headers();
-//     headers.set('Accept', 'application/json');
-
-//     return reviewsDbPromise.then(db => {
-//       const tx = db.transaction('deferred-reviews', 'readonly');
-//       const store = tx.objectStore('deferred-reviews');
-//       return store.getAll();
-//     }).then(data => {
-//       const formData = new FormData();
-//       formData.append('name', data['name']);
-//       formData.append('comment', data['comment']);
-//       formData.append('rating', data['rating']);
-//       formData.append('date', data['date']);
-
-//       fetch('', {
-//         method: 'POST',
-//         headers,
-//         body: formData
-//       }).then(() => {
-//         //delete locally stored data after successful post to server
-//         reviewsDbPromise.then(db => {
-//           const tx = db.transaction('deferred-reviews', 'readwrite');
-//           const store = tx.objectStore('deferred-reviews');
-//           store.clear();
-//         })
-//       })
-//     });
-
-//   }
-// });
 
 /**
  * Add restaurant name to the breadcrumb navigation menu
