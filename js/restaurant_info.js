@@ -296,7 +296,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
 
             // save defered review to IDB
             reviewsDbPromise.then(db => {
-                db.createObjectStore('deferred-reviews');
+                
                 const tx = db.transaction('deferred-reviews', 'readwrite');
                 const store = tx.objectStore('deferred-reviews');
                 store.put(review);
