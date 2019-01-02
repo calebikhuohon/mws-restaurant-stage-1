@@ -165,6 +165,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
 
   //add form handler
   const form = document.getElementById('form');
+
   let name = form.getElementById('name');
   let rating = form.getElementById('rating');
   let comment = form.getElementById('comment');
@@ -387,7 +388,7 @@ createReviewForm = () => {
   button.innerText = 'Submit Review';
   form.appendChild(button);
 
-  document.getElementById('reviews-list').appendChild(form);
+  //document.getElementById('reviews-list').appendChild(form);
   return form;
 }
 
