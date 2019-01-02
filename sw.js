@@ -1,15 +1,20 @@
-const CACHE_NAME = 'restaurant-site-cache-v1';
+importScripts("/js/idb.js");
+importScripts("/js/indexDB.js");
+importScripts("/js/dbhelper.js");
+
+const CACHE_NAME = 'restaurant-site-cache-v2';
 
 const urlsToCache = [
     './',
+    '/manifest.json',
     './images',
-    './js/dbhelper.js',
-    './js/main.js',
-    './js/restaurant_info.js',
+    'js/dbhelper.js',
+    'js/main.js',
+    'js/restaurant_info.js',
+    'js/idb.js',
     './index.html',
     './restaurant.html',
     './css/styles.css',
-    './data/restaurants.json',
     'https://normalize-css.googlecode.com/svn/trunk/normalize.css',
     'https://unpkg.com/leaflet@1.3.1/dist/leaflet.css',
     'https://unpkg.com/leaflet@1.3.1/dist/leaflet.js',

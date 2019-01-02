@@ -1,15 +1,16 @@
 let restaurant;
 var newMap;
 
-const reviewsDbPromise = idb.open('reviews', 2, db => {
+const reviewsDbPromise = idb.open('restaurant_reviews', 1, db => {
 
-  if(!db.objectStoreNames.contains('reviews')) {
+  if (!db.objectStoreNames.contains('reviews')) {
     const reviewdb = db.createObjectStore('reviews', {
-      keyPath: 'unique'
+      keyPath: 'unique',
+      autoIncrement: true 
     });
-    reviewdb.createIndex("restaurant_id", "restaurant_id");  
+    reviewdb.createIndex("restaurant_id", "restaurant_id");
   }
-  
+
 
   if (!db.objectStoreNames.contains("defered-reviews")) {
     db.createObjectStore("defered-reviews", {
@@ -153,7 +154,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
           reviewsDbPromise.then(db => {
               const tx = db.transaction("reviews", "readwrite");
-              const store = tx.objectStore("reviews");
+              let store = tx.objectStore("reviews");
 
               for (review of reviews) {
                 store.put(review);
@@ -222,6 +223,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   let name = document.getElementById('name');
   let rating = document.getElementById('rating');
   let comment = document.getElementById('comment');
+  
 
   form.addEventListener('submit', event => {
     event.preventDefault();
@@ -233,14 +235,15 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
       return;
     }
 
-    if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator && 'SyncManager' in window) {
       if (navigator.onLine) {
 
         const review = {
           name: name.value,
           rating: rating.value,
           comments: comment.value,
-          restaurant_id: self.restaurant.id
+          restaurant_id: self.restaurant.id,
+          date: new Date().toLocaleDateString()
         };
 
         //make request
@@ -287,7 +290,8 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
               name: name.value,
               rating: rating.value,
               comments: comment.value,
-              restaurant_id: self.restaurant.id
+              restaurant_id: self.restaurant.id,
+              date: new Date().toLocaleDateString()
             };
 
             // save defered review to IDB
@@ -327,8 +331,53 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
       }
 
     } else {
-      // does not support backgroud syncing and user is offline
-      toast("Sorry you cannot add review offline");
+      if (navigator.onLine) {
+        const review = {
+          name: name.value,
+          rating: rating.value,
+          comments: comment.value,
+          restaurant_id: self.restaurant.id,
+          date: new Date().toLocaleDateString()
+        };
+
+        fetch('http://localhost:1337/reviews/', {
+            method: 'POST',
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json"
+            },
+            body: JSON.stringify(review)
+          })
+          .then(res => res.json())
+          .then(data => {
+            // udate reviews list
+            updateReviewsHTML(data);
+            toast("Sucessfully added your review"); // show success message
+
+            const unique = Math.random().toString(36).substr(2, 9);
+            // add unique property to data response
+            data.unique = unique;
+
+            // save review in IDB 
+            reviewsDbPromise.then(db => {
+                const tx = db.transaction('reviews', 'readwrite');
+                const store = tx.objectStore('reviews');
+                store.put(data);
+                return tx.complete;
+              }).then(() => console.log('review saved to idb'))
+              .catch(error => console.log(error));
+
+            // set input fields to empty
+            name.value = "";
+            rating.value = "";
+            comment.value = "";
+          }).catch(err => console.log(err));
+
+      } else {
+        // does not support backgroud syncing and user is offline
+        toast("Sorry you cannot add review offline");
+      }
+
     }
 
   });
@@ -345,10 +394,10 @@ createReviewHTML = (review) => {
   name.innerHTML = review.name;
   li.appendChild(name);
 
-  const date = document.createElement('p');
-  date.innerHTML = review.date;
-  date.className = 'reviews_date';
-  li.appendChild(date);
+  // const date = document.createElement('p');
+  // date.innerHTML = review.date;
+  // date.className = 'reviews_date';
+  // li.appendChild(date);
 
   const rating = document.createElement('p');
   rating.innerHTML = `Rating: ${review.rating}`;
@@ -438,6 +487,13 @@ createReviewForm = () => {
   ratingInput.setAttribute('max', '5');
   form.appendChild(ratingInput);
 
+  
+  //date
+  const date = document.createElement('p');
+  date.setAttribute('id','date');
+  date.setAttribute('name', 'date');
+  date.innerHTML = new Date().toLocaleDateString();
+  form.appendChild(date);  
 
   const button = document.createElement('button');
   button.type = 'submit';
