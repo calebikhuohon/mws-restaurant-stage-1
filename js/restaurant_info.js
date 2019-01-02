@@ -162,6 +162,120 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   });
   container.appendChild(ul);
   container.appendChild(createReviewForm());
+
+  //add form handler
+  const form = document.getElementById('form');
+  let name = form.getElementById('name');
+  let rating = form.getElementById('rating');
+  let comment = form.getElementById('comment');
+
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+
+    if (name.value === '' || comment.value === '' || rating.value === '') {
+      toast('all fields are required');
+      return;
+    }
+
+    if ('serviceWorker' in navigator) {
+      if (navigator.onLine) {
+
+        const review = {
+          name: name.value,
+          rating: rating.value,
+          comments: comment.value,
+          restaurant_id: self.restaurant.id
+        };
+
+        //make request
+        fetch('http://localhost:1337/reviews/', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(jsonObject)
+          })
+          .then(res => res.json())
+          .then(review, (error, data) => {
+            if (error) {
+              console.log(error);
+            }
+            // udate reviews list
+            updateReviewsHTML(data);
+            toast("Sucessfully added your review"); // show success message
+
+            const unique = Math.random().toString(36).substr(2, 9);
+            // add unique property to data response
+            data.unique = unique;
+
+            // save review in IDB 
+            reviewsDbPromise.then(db => {
+                const tx = db.transaction('reviews', 'readwrite');
+                const store = tx.objectStore('reviews');
+                store.put(review);
+                return tx.complete;
+              }).then(() => console.log('review saved to idb'))
+              .catch(error => console.log(error));
+
+            // set input fields to empty
+            name.value = "";
+            rating.value = "";
+            comment.value = "";
+          })
+      } else { // user is offline
+        // set background sync
+        navigator.serviceWorker.ready
+          .then(sw => {
+            const date = new Date().toISOString();
+            const review = {
+              id: date,
+              name: name.value,
+              rating: rating.value,
+              comments: comment.value,
+              restaurant_id: self.restaurant.id
+            };
+
+            // save defered review to IDB
+            reviewsDbPromise.then(db => {
+                db.createObjectStore('deferred-reviews');
+                const tx = db.transaction('deferred-reviews', 'readwrite');
+                const store = tx.objectStore('deferred-reviews');
+                store.put(review);
+                return tx.complete;
+              })
+              .then(() => {
+                sw.sync.register("sync-new-reviews");
+              })
+              .then(() => {
+                toast("Review saved for background syncing");
+                review.createdAt = date;
+                updateReviewsHTML(review);
+                // set input fields to empty
+                name.value = "";
+                rating.value = "";
+                comment.value = "";
+              })
+              .catch(err => console.log(err));
+
+            const unique = Math.random().toString(36).substr(1, 9);
+            review.unique = unique;
+
+            reviewsDbPromise.then(db => {
+                const tx = db.transaction('reviews', 'readwrite');
+                const store = tx.objectStore('reviews');
+                store.put(review);
+                return tx.complete;
+              }).then(() => console.log('review saved to idb'))
+              .catch(error => console.log(error));
+          })
+          .catch(error => console.log(error))
+      }
+
+    } else {
+      // does not support backgroud syncing and user is offline
+      toast("Sorry you cannot add review offline");
+    }
+
+  });
+
 }
 
 /**
@@ -221,7 +335,7 @@ toast = message => {
 createReviewForm = () => {
   const form = document.createElement('form');
   form.setAttribute('method', "post");
-  form.setAttribute('action', "http://localhost:1337/reviews/");
+  form.setAttribute('id', 'form');
 
   //label for reviewer's name
   const nameLabel = document.createElement('label');
@@ -272,110 +386,6 @@ createReviewForm = () => {
   button.type = 'submit';
   button.innerText = 'Submit Review';
   form.appendChild(button);
-
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-
-    if (nameInput.value === '' || reviewText.value === '' || ratingInput.value === '') {
-      alert('all fields are required');
-      return;
-    }
-
-    //get form data
-    const formData = new FormData();
-    formData.append(form[0].name, form[0].value);
-    formData.append(form[1].name, form[1].value);
-    formData.append(form[2].name, form[2].value);
-    formData.append('date', new Date().toLocaleDateString());
-    formData.append('restaurant_id', self.restaurant.id)
-    for (var key of formData.entries()) {
-      console.log(key[0] + ': ' + key[1])
-    }
-
-    let jsonObject = {};
-    for (const [key, value] of formData.entries()) {
-      jsonObject[key] = value;
-    }
-    console.log('jsonObject', jsonObject);
-
-    //make request
-    fetch('http://localhost:1337/reviews/', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(jsonObject)
-      })
-      .then(res => {
-        res.json().then(data => {
-
-          if ('serviceWorker' in navigator && 'SyncManager' in window) {
-            if (navigator.onLine) {
-              // udate reviews list
-              updateReviewsHTML(data);
-              showToast("Sucessfully added your review"); // show success message
-
-              const unique = Math.random().toString(36).substr(2, 9);
-              // add unique property to data response
-              data.unique = unique;
-              // save review in IDB 
-              // db.addSingleReview(data);
-              // set input fields to empty
-              name.value = "";
-              rating.value = "";
-              comment.value = "";
-
-            } else { // user is offline
-              // set background sync
-              navigator.serviceWorker.ready
-                .then(sw => {
-                  const date = new Date().toISOString();
-
-
-                  // save defered review to IDB
-                  reviewsDbPromise.then(db => {
-                      db.createObjectStore('deferred-reviews');
-                      const tx = db.transaction('deferred-reviews', 'readwrite');
-                      const store = tx.objectStore('deferred-reviews');
-                      store.put({
-                        name: `${form[0].value}`,
-                        comment: `${form[1].value}`,
-                        rating: `${form[2].value}`,
-                        date: new Date().toLocaleDateString(),
-                        restaurant_id: self.restaurant.id,
-                        unique: Math.random().toString(36).substr(1, 9)
-                      });
-                      return tx.complete;
-                    })
-                    .then(() => {
-                      sw.sync.register("sync-new-reviews");
-                    })
-                    .then(() => {
-                      showToast("Review saved for background syncing");
-                      data.createdAt = date;
-                      updateReviewsHTML({
-                        name: `${form[0].value}`,
-                        comment: `${form[1].value}`,
-                        rating: `${form[2].value}`,
-                        date: new Date().toLocaleDateString(),
-                        restaurant_id: self.restaurant.id,
-                        unique: Math.random().toString(36).substr(1, 9)
-                      });
-                      // set input fields to empty
-                      name.value = "";
-                      rating.value = "";
-                      comment.value = "";
-                    })
-                    .catch(err => console.log(err));
-                })
-                .catch(error => console.log(error))
-            }
-
-          } else {
-            // does not support backgroud syncing and user is offline
-            showToast("Sorry you cannot add review offline");
-          }
-        });
-      });
-  });
 
   document.getElementById('reviews-list').appendChild(form);
   return form;
