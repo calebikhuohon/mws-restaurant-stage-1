@@ -1,17 +1,21 @@
 let restaurant;
 var newMap;
 
-const reviewsDbPromise = idb.open('reviews', 1, db => {
-  switch (db.oldVersion) {
-    case 0:
-      db.createObjectStore('reviews');
-  }
+const reviewsDbPromise = idb.open('reviews', 2, db => {
 
-  // if (!db.objectStoreNames.contains("defered-reviews")) {
-  //   db.createObjectStore("defered-reviews", {
-  //     keyPath: "id"
-  //   });
-  // }
+  if(!db.objectStoreNames.contains('reviews')) {
+    const reviewdb = db.createObjectStore('reviews', {
+      keyPath: 'unique'
+    });
+    reviewdb.createIndex("restaurant_id", "restaurant_id");  
+  }
+  
+
+  if (!db.objectStoreNames.contains("defered-reviews")) {
+    db.createObjectStore("defered-reviews", {
+      keyPath: "id"
+    });
+  }
 });
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -114,9 +118,58 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
   }
-  // fill reviews
-  fillReviewsHTML();
+  //get all reviews
+  reviewsDbPromise.then(db => {
+    const tx = db.transaction('reviews');
+    let store = tx.objectStore('reviews');
+    //store = store.index('restaurant_id');
+
+    return store.getAll(parseInt(restaurant.id));
+  }).then(reviews => {
+    if (reviews.length > 0) {
+      console.log("got reviews from IDB");
+      // fill reviews
+      fillReviewsHTML(reviews);
+    } else {
+      // no reviews in IDB
+      const url = `http://localhost:1337/reviews/?restaurant_id=${restaurant.id}`;
+      // get  reviews online to render and save them to IDB
+      fetch(url)
+        .then(res => res.json())
+        .then(reviews => {
+          reviews = reviews.map(review => {
+            const unique = Math.random().toString(36).substr(1, 9);
+            return {
+              id: review.id,
+              restaurant_id: review.restaurant_id,
+              unique: unique,
+              name: review.name,
+              rating: review.rating,
+              comments: review.comments,
+              createdAt: review.createdAt,
+              updatedAt: review.updatedAt
+            };
+          });
+
+          reviewsDbPromise.then(db => {
+              const tx = db.transaction("reviews", "readwrite");
+              const store = tx.objectStore("reviews");
+
+              for (review of reviews) {
+                store.put(review);
+              }
+              return tx.complete;
+            }).then(() => console.log('reviews saved to IDB'))
+            .catch(err => console.log('unable to save'));
+
+          // fill reviews
+          fillReviewsHTML(reviews);
+
+        }).catch(err => console.log(err));
+    }
+  }).catch(err => console.log(err));
 }
+
 
 /**
  * Create restaurant operating hours HTML table and add it to the webpage.
@@ -166,16 +219,17 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   //add form handler
   const form = document.getElementById('form');
 
-  let name = form.getElementById('name');
-  let rating = form.getElementById('rating');
-  let comment = form.getElementById('comment');
+  let name = document.getElementById('name');
+  let rating = document.getElementById('rating');
+  let comment = document.getElementById('comment');
 
   form.addEventListener('submit', event => {
     event.preventDefault();
-    console.log('inside event listener');
+
 
     if (name.value === '' || comment.value === '' || rating.value === '') {
       toast('all fields are required');
+
       return;
     }
 
@@ -192,16 +246,16 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
         //make request
         fetch('http://localhost:1337/reviews/', {
             method: 'POST',
-            headers,
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json"
+            },
             body: JSON.stringify(review)
           })
           .then(res => res.json())
-          .then(review => {
-            if (error) {
-              console.log(error);
-            }
+          .then(data => {
             // udate reviews list
-            updateReviewsHTML(review);
+            updateReviewsHTML(data);
             toast("Sucessfully added your review"); // show success message
 
             const unique = Math.random().toString(36).substr(2, 9);
@@ -212,7 +266,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
             reviewsDbPromise.then(db => {
                 const tx = db.transaction('reviews', 'readwrite');
                 const store = tx.objectStore('reviews');
-                store.put(review);
+                store.put(data);
                 return tx.complete;
               }).then(() => console.log('review saved to idb'))
               .catch(error => console.log(error));
@@ -221,7 +275,8 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
             name.value = "";
             rating.value = "";
             comment.value = "";
-          })
+          }).catch(err => console.log(err));
+
       } else { // user is offline
         // set background sync
         navigator.serviceWorker.ready
