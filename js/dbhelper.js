@@ -54,7 +54,7 @@ class DBHelper {
 
           let tx = db.transaction('restaurants', 'readwrite');
           let restaurantStore = tx.objectStore('restaurants');
-          return restaurantStore.get()
+          return restaurantStore.get('all')
             .then(res => {
               console.log('data fetched from idb');
               callback(null, res);
