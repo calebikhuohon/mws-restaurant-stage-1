@@ -1,4 +1,4 @@
-const CACHE_NAME = 'restaurant-site-cache-v2';
+const CACHE_NAME = 'restaurant-site-cache-v1';
 
 const urlsToCache = [
     './',
@@ -9,6 +9,7 @@ const urlsToCache = [
     './index.html',
     './restaurant.html',
     './css/styles.css',
+    './data/restaurants.json',
     'https://normalize-css.googlecode.com/svn/trunk/normalize.css',
     'https://unpkg.com/leaflet@1.3.1/dist/leaflet.css',
     'https://unpkg.com/leaflet@1.3.1/dist/leaflet.js',
