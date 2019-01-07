@@ -1,7 +1,7 @@
 let restaurant;
 var newMap;
 
-const reviewsDbPromise = idb.open('restaurant_reviews', 1, db => {
+const reviewsDbPromise = idb.open('restaurant_reviews', 2, db => {
 
   if (!db.objectStoreNames.contains('reviews')) {
     const reviewdb = db.createObjectStore('reviews', {
