@@ -127,7 +127,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
     return store.getAll(parseInt(restaurant.id));
   }).then(reviews => {
-    if (reviews.length > 0) {
+    if (reviews) {
       console.log("got reviews from IDB");
       // fill reviews
       fillReviewsHTML(reviews);
@@ -294,7 +294,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
               date: new Date().toLocaleDateString()
             };
 
-            // save defered review to IDB
+            // save deferred review to IDB
             reviewsDbPromise.then(db => {
                 
                 const tx = db.transaction('deferred-reviews', 'readwrite');
