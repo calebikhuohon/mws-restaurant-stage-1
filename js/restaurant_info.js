@@ -12,7 +12,7 @@ const reviewsDbPromise = idb.open('restaurant_reviews', 1, db => {
   }
 
 
-  if (!db.objectStoreNames.contains("defered-reviews")) {
+  if (!db.objectStoreNames.contains("deferred-reviews")) {
     db.createObjectStore("defered-reviews", {
       keyPath: "id"
     });
