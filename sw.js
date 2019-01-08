@@ -1,5 +1,5 @@
 if (typeof reviewsDbPromise === 'undefined') {
-    importScripts('js/idb.js', 'js/restaurant_info.js');
+    importScripts('js/idb.js', 'js/initReviewsDb.js');
 }
 
 
