@@ -1,6 +1,6 @@
-importScripts('./js/restaurant_info.js');
-importScripts('./js/idb.js');
-importScripts('./js/dbhelper.js')
+importScripts('js/restaurant_info.js');
+importScripts('js/idb.js');
+importScripts('js/dbhelper.js')
 const CACHE_NAME = 'restaurant-site-cache-v2';
 
 const urlsToCache = [
