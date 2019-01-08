@@ -295,9 +295,15 @@ nav h1 a {
   line-height: 1.1;
 }
 
-.favorite {
-  color: #f18200;
-  font-weight: 200;
+.fav-btn .favorite {
+  padding: 0.5em;
+  margin: 0 0 15px;
+  background-color: #f58500;
+  color: white;
+  border-radius: 3px; 
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.19), 0 0px 0px rgba(0, 0, 0, 0);
 }
 
 #restaurant-img {
@@ -391,7 +397,7 @@ nav h1 a {
 }
 
 #reviews-list li .reviews_date {
- 
+
   width: calc(85% / 2);
   padding-top: 20px;
   display: inline-block;
@@ -433,38 +439,62 @@ nav h1 a {
 form {
   /* Just to center the form on the page */
   margin: 0 auto;
-  width: 400px;
+  /* width: 400px; */
   /* To see the outline of the form */
   padding: 1em;
-  border: 1px solid #CCC;
+
   border-radius: 1em;
+  width: 89%;
+  background-color: #fff;
+  border: 2px solid #f3f3f3;
+  display: block;
+  list-style-type: none;
+  margin-bottom: 30px !important;
+  overflow: hidden;
+  /* padding: 0 20px 20px; */
+  position: relative;
+  border-radius: 10px 0 10px 0;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.19), 0 0px 0px rgba(0, 0, 0, 0);
 }
 
-form div + div {
+/* form div+div {
   margin-top: 1em;
-}
+} */
 
 label {
   /* To make sure that all labels have the same size and are properly aligned */
   display: inline-block;
-  width: 90px;
-  text-align: right;
+  width: 30%;
+  
+  margin: 2%;
+  height: 30px;
+  vertical-align: top;
+ 
+  color: #333;
+  font-size: 12pt;
+  font-weight: 400;
 }
 
-input, textarea {
+input,
+textarea {
   /* To make sure that all text fields have the same font settings
      By default, textareas have a monospace font */
-  font: 1em sans-serif;
-
+     display: inline-block;
+     height: 30px;
+     margin: 2%;
   /* To give the same size to all text fields */
-  width: 300px;
+  width: 60%;
+  color: #333;
+  font-size: 12pt;
+  font-weight: 400;
   box-sizing: border-box;
 
   /* To harmonize the look & feel of text field border */
   border: 1px solid #999;
 }
 
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
   /* To give a little highlight on active elements */
   border-color: #000;
 }
@@ -477,36 +507,29 @@ textarea {
   height: 5em;
 }
 
-.button {
-  /* To position the buttons to the same position of the text fields */
-  padding-left: 90px; /* same size as the label elements */
-}
 
-button {
-  /* This extra margin represent roughly the same space as the space
-     between the labels and their text fields */
-  margin-left: .5em;
-} 
 
 /* toast */
-.toast{
-  visibility: hidden; /* Hidden by default. Visible on click */
-  min-width: 250px; 
-  margin-left: -125px; 
-  background-color: #f58500; 
-  color: #fff; 
-  text-align: center; 
-  border-radius: 2px; 
-  padding: 16px; 
-  position: fixed; 
-  z-index: 1; 
-  left: 50%; 
-  bottom: 30px; 
+.toast {
+  visibility: hidden;
+  /* Hidden by default. Visible on click */
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #f58500;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
 }
 
 .toast.show {
-  visibility: visible; /* Show the snackbar */
-    /* Take 0.5 seconds to fade in and out the snackbar. 
+  visibility: visible;
+  /* Show the snackbar */
+  /* Take 0.5 seconds to fade in and out the snackbar. 
    However, delay the fade out process for 3.5 seconds */
   -webkit-animation: fadein 0.5s, fadeout 0.5s 3.5s;
   animation: fadein 0.5s, fadeout 0.5s 3.5s;
@@ -515,25 +538,28 @@ button {
 /* Animations to fade the snackbar in and out */
 @keyframes fadein {
   from {
-    bottom: 0; 
+    bottom: 0;
     opacity: 0;
   }
+
   to {
-    bottom: 30px; 
+    bottom: 30px;
     opacity: 1;
   }
 }
 
 @keyframes fadeout {
   from {
-    bottom: 30px; 
+    bottom: 30px;
     opacity: 1;
   }
+
   to {
-    bottom: 0; 
+    bottom: 0;
     opacity: 0;
   }
 }
+
 /* ========================== Media queries ======================== */
 
 @media screen and (min-width: 320px) {
@@ -542,9 +568,11 @@ button {
     height: 40vh;
     top: 80px;
   }
+
   #restaurant-name {
     font-size: 15pt;
   }
+
   nav h1 a {
     font-size: 10pt;
   }
@@ -552,19 +580,24 @@ button {
   #footer {
     font-size: 10pt;
   }
+
   #reviews-list li .reviews_date {
     font-size: 0.5em;
     text-align: center;
   }
+
   #reviews-list li {
     width: 100%;
   }
+
   #map {
     height: 30vh;
   }
+
   #restaurants-list {
     margin-left: 0;
   }
+
   #restaurant-cuisine {
     width: 100%;
   }
@@ -573,7 +606,7 @@ button {
     width: 100%;
   }
 
-  #restaurant-hours  {
+  #restaurant-hours {
     width: 100%;
   }
 }
@@ -582,32 +615,39 @@ button {
   #map {
     height: 70vh;
   }
+
   #restaurant-name {
     font-size: 20pt;
   }
+
   nav h1 a {
     font-size: 14pt;
   }
+
   #reviews-list li {
     width: 90%;
     margin: 0 auto;
   }
+
   #restaurant-list {
     max-width: 90%;
     margin: 0 auto;
   }
+
   #restaurants-list li {
     width: calc(50% - 100px);
     margin: 15px 15px;
   }
+
   #restaurant-container #restaurant-img {
     width: 70%;
   }
+
   #restaurant-cuisine {
     width: 70%;
   }
 
-  #restaurant-hours  {
+  #restaurant-hours {
     width: 70%;
   }
 }
@@ -617,14 +657,16 @@ button {
     width: calc(33% - 100px);
     margin: 15px 15px;
   }
- #restaurant-container #restaurant-img {
+
+  #restaurant-container #restaurant-img {
     width: 70%;
   }
+
   #restaurant-cuisine {
     width: 70%;
   }
 
-  #restaurant-hours  {
+  #restaurant-hours {
     width: 70%;
   }
 }

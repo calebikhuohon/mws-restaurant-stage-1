@@ -105,10 +105,10 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   const favButton = document.getElementById('favorite');
   const _isFavorite = restaurant;
   if(_isFavorite) {
-    favButton.innerHTML = '<span>♥</span>remove from fav';
+    favButton.innerHTML = '<span>♥</span>Remove from Favourites';
    favButton.classList.add('remove-fav');
   } else {
-    favButton.innerHTML = '<span>♡</span> add to fav';
+    favButton.innerHTML = '<span>♡</span>Add to Favourites';
     favButton.classList.add('add-fav');
   }
 
@@ -511,6 +511,7 @@ createReviewForm = () => {
 
   const button = document.createElement('button');
   button.type = 'submit';
+  button.setAttribute('class','form-button');
   button.innerText = 'Submit Review';
   form.appendChild(button);
 

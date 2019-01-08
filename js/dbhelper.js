@@ -9,14 +9,17 @@
 const dbPromise = idb.open('restaurants', 1, upgradeDB => {
   switch (upgradeDB.oldVersion) {
     case 0:
-      return upgradeDB.createObjectStore('restaurants');
+      return upgradeDB.createObjectStore('restaurants', {
+        keyPath: "id"
+      });
+
   }
 });
 
 /**
  * Get a parameter by name from page URL.
  */
-const getParameterByName = (name, url) => {
+getParameterByName = (name, url) => {
   if (!url)
     url = window.location.href;
   name = name.replace(/[\[\]]/g, '\\$&');
@@ -51,11 +54,11 @@ class DBHelper {
 
       if (classNames.includes('add-fav')) {
         query = true;
-        favButton.innerHTML = '<span>♥</span>';
+        favButton.innerHTML = '<span>♥</span>Remove from favourites';
         favButton.classList.remove('add-fav');
         favButton.classList.add('remove-fav');
       } else {
-        favButton.innerHTML = '<span>♡</span>';
+        favButton.innerHTML = '<span>♡</span>Add to favourites';
         favButton.classList.remove('remove-fav');
         favButton.classList.add('add-fav');
       }
@@ -69,7 +72,7 @@ class DBHelper {
             const store = tx.objectStore('restaurants');
             store.put(resObj);
             return tx.complete;
-          })
+          }).catch(err => console.log('error in adding favourite restaurant to iDB', err))
         }).catch(err => console.log(err));
     });
   }
@@ -85,14 +88,17 @@ class DBHelper {
         const json = JSON.parse(xhr.responseText);
         const restaurants = json;
 
-        dbPromise.then(db => {
-            let tx = db.transaction('restaurants', 'readwrite');
-            let restaurantStore = tx.objectStore('restaurants');
-            restaurantStore.put(restaurants, 'all');
-            return tx.complete;
+        restaurants.map(restaurant => {
+          dbPromise.then(db => {
+              let tx = db.transaction('restaurants', 'readwrite');
+              let restaurantStore = tx.objectStore('restaurants');
+              restaurantStore.put(restaurant);
+              return tx.complete;
 
-          }).then(() => console.log('query added to db'))
-          .catch(err => console.log('adding query to db failed', err));
+            }).then(() => console.log('query added to db'))
+            .catch(err => console.log('adding query to db failed', err));
+        })
+
         callback(null, restaurants);
       } else if (!navigator.onLine) {
 
