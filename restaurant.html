@@ -28,8 +28,10 @@
       <h1><a href="/">Restaurant Reviews</a></h1>
     </nav>
     <!-- Beginning breadcrumb -->
-    <ul aria-label="Breadcrumb" id="breadcrumb">
-      <li><a aria-current="page" href="/">Home</a></li>
+    <nav>
+      <ul aria-label="Breadcrumb" id="breadcrumb"></ul>
+    </nav>
+    <li><a aria-current="page" href="/">Home</a></li>
     </ul>
     <!-- End breadcrumb -->
     <!-- End nav -->
@@ -51,7 +53,7 @@
       </div>
       <img id="restaurant-img" alt="Restaurant image">
       <p id="restaurant-cuisine"></p>
-      <p id="restaurant-address"></p>
+      <p tabindex="0" id="restaurant-address"></p>
       <table id="restaurant-hours"></table>
     </section>
     <!-- end restaurant -->
@@ -77,7 +79,7 @@
   <!-- Database helpers -->
   <script type="application/javascript" charset="utf-8" src="js/idb.js"></script>
   <script type="text/javascript" src="js/dbhelper.js"></script>
-  
+
   <!-- Main javascript file -->
   <script type="text/javascript" src="js/restaurant_info.js"></script>
   <!-- <script type="text/javascript" src="js/initReviewsDb.js"></script> -->
