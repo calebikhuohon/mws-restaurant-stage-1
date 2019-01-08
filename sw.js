@@ -1,6 +1,6 @@
-//importScripts('/js/restaurant_info.js');
-// importScripts('/js/idb.js');
-// importScripts('/js/dbhelper.js');
+importScripts('/js/restaurant_info.js');
+importScripts('/js/idb.js');
+importScripts('/js/dbhelper.js');
 
 const CACHE_NAME = 'restaurant-site-cache-v2';
 
@@ -25,9 +25,10 @@ const urlsToCache = [
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-        .then((cache) => {
+        .then(cache => {
             console.log('[Service worker] caching all files');
             cache.addAll(urlsToCache);
+            console.log('files cached');
         }).then(() => self.skipWaiting()).catch(err => console.log('error occured while caching files: ', err))
     );
 });
@@ -94,4 +95,4 @@ self.addEventListener('sync', event => {
             }).catch(err => console.log(err))
         );
    }
-})
+});
