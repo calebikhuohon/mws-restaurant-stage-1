@@ -127,7 +127,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
     return store.getAll(parseInt(restaurant.id));
   }).then(reviews => {
-    if (reviews !== '' || reviews != null || reviews != undefined|| reviews.length > 0) {
+    if (reviews.length > 0) {
       console.log("got reviews from IDB");
       // fill reviews
       fillReviewsHTML(reviews);
