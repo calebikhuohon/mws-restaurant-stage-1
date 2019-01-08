@@ -1,6 +1,7 @@
 let restaurant;
 var newMap;
 
+
 const reviewsDbPromise = idb.open('restaurant_reviews', 2, db => {
 
   if (!db.objectStoreNames.contains('reviews')) {
@@ -91,12 +92,25 @@ fetchRestaurantFromURL = (callback) => {
   }
 }
 
+
+
 /**
  * Create restaurant HTML and add it to the webpage
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
+
+  DBHelper.setFavoriteRestaurant();
+  const favButton = document.getElementById('favorite');
+  const _isFavorite = restaurant;
+  if(_isFavorite) {
+    favButton.innerHTML = '<span>♥</span>remove from fav';
+   favButton.classList.add('remove-fav');
+  } else {
+    favButton.innerHTML = '<span>♡</span> add to fav';
+    favButton.classList.add('add-fav');
+  }
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
@@ -161,7 +175,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
               }
               return tx.complete;
             }).then(() => console.log('reviews saved to IDB'))
-            .catch(err => console.log('unable to save'));
+            .catch(err => console.log('unable to save: ', err));
 
           // fill reviews
           fillReviewsHTML(reviews);
@@ -303,7 +317,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
                 return tx.complete;
               })
               .then(() => {
-                sw.sync.register("sync-new-reviews");
+                sw.sync.register("sync-reviews");
               })
               .then(() => {
                 toast("Review saved for background syncing");

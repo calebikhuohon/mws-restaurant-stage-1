@@ -2,10 +2,10 @@
  * Common database helper functions.
  */
 
-  /**
-   * IndexDB initialization
-   */
-  
+/**
+ * IndexDB initialization
+ */
+
 const dbPromise = idb.open('restaurants', 1, upgradeDB => {
   switch (upgradeDB.oldVersion) {
     case 0:
@@ -13,7 +13,21 @@ const dbPromise = idb.open('restaurants', 1, upgradeDB => {
   }
 });
 
-
+/**
+ * Get a parameter by name from page URL.
+ */
+const getParameterByName = (name, url) => {
+  if (!url)
+    url = window.location.href;
+  name = name.replace(/[\[\]]/g, '\\$&');
+  const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`),
+    results = regex.exec(url);
+  if (!results)
+    return null;
+  if (!results[2])
+    return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
 
 
 class DBHelper {
@@ -25,6 +39,39 @@ class DBHelper {
     const port = 1337 // Change this to your server port
     //return `https://calebikhuohon.github.io/mws-restaurant-stage-1/data/restaurants.json`;
     return `http://localhost:${port}/restaurants`;
+  }
+
+  static setFavoriteRestaurant() {
+    const favButton = document.getElementById('favorite');
+    return favButton.addEventListener('click', () => {
+      const restaurant_id = Number(getParameterByName('id'));
+      const url = DBHelper.DATABASE_URL;
+      let query = false;
+      const classNames = Array.from(favButton.classList);
+
+      if (classNames.includes('add-fav')) {
+        query = true;
+        favButton.innerHTML = '<span>♥</span>';
+        favButton.classList.remove('add-fav');
+        favButton.classList.add('remove-fav');
+      } else {
+        favButton.innerHTML = '<span>♡</span>';
+        favButton.classList.remove('remove-fav');
+        favButton.classList.add('add-fav');
+      }
+
+      fetch(`${url}/${restaurant_id}/?is_favorite=${query}`, {
+          method: 'PUT'
+        }).then(res => res.json())
+        .then(resObj => {
+          dbPromise.then(db => {
+            const tx = db.transaction('restaurants', 'readwrite');
+            const store = tx.objectStore('restaurants');
+            store.put(resObj);
+            return tx.complete;
+          })
+        }).catch(err => console.log(err));
+    });
   }
 
   /**
@@ -68,7 +115,7 @@ class DBHelper {
     };
     xhr.send();
   }
-  
+
   /**
    * Fetch a restaurant by its ID.
    */
@@ -206,16 +253,16 @@ class DBHelper {
    */
   static mapMarkerForRestaurant(restaurant, map) {
     // https://leafletjs.com/reference-1.3.0.html#marker  
-   
-      const  marker = new L.marker([
-          restaurant.latlng.lat,
-          restaurant.latlng.lng
-        ], {
-          title: restaurant.name,
-          alt: restaurant.name,
-          url: DBHelper.urlForRestaurant(restaurant)
-        });
-     
+
+    const marker = new L.marker([
+      restaurant.latlng.lat,
+      restaurant.latlng.lng
+    ], {
+      title: restaurant.name,
+      alt: restaurant.name,
+      url: DBHelper.urlForRestaurant(restaurant)
+    });
+
     marker.addTo(newMap);
     return marker;
   }

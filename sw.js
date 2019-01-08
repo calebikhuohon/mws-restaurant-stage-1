@@ -1,4 +1,7 @@
-const CACHE_NAME = 'restaurant-site-cache-v1';
+importScripts('/js/restaurant_info.js');
+importScripts('/js/idb.js');
+importScripts('/js/dbhelper.js')
+const CACHE_NAME = 'restaurant-site-cache-v2';
 
 const urlsToCache = [
     './',
@@ -55,4 +58,39 @@ self.addEventListener('activate', (event) => {
             );
         })
     );
+});
+
+self.addEventListener('sync', event => {
+   if (event.tag === 'sync-reviews') {
+        event.waitUntil(
+            reviewsDbPromise.then(db => {
+               const tx = db.transaction('deferred-reviews','readwrite');
+               const store = tx.objectStore('deferred-reviews');
+               return store.getAll().then(data => {
+                   for(let review of data) {
+                       fetch('http://localhost:1337/reviews/', {
+                           method: 'POST',
+                           headers: {
+                            "Content-Type": "application/json",
+                            Accept: "application/json"
+                           },
+                           body: JSON.stringify({
+                               name: review.name,
+                               rating: review.rating,
+                               comments: review.comment,
+                               restaurant_id: review.restaurant_id
+                           })
+                       }).then(res => res.json())
+                       .then(() => {
+                           reviewsDbPromise.then(db => {
+                               const tx = db.transaction('deferred-reviews','readwrite');
+                               const store = tx.objectStore('deferred-reviews');
+                               store.delete(review.id);
+                           })
+                       }).catch(err => console.log(err))
+                   }
+               }).catch(err => console.log(err));
+            }).catch(err => console.log(err))
+        );
+   }
 })

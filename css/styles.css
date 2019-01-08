@@ -295,6 +295,11 @@ nav h1 a {
   line-height: 1.1;
 }
 
+.favorite {
+  color: #f18200;
+  font-weight: 200;
+}
+
 #restaurant-img {
   height: 25%;
   border-radius: 10% 0 10% 0;
