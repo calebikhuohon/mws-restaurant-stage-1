@@ -16,7 +16,7 @@ In a terminal, check the version of Python you have: `python -V`. If you have Py
   ```
   # npm install
   ```
-5. Follow the instructions contained in the [development server's](https://github.com/udacity/mws-restaurant-stage-3) to access the JSON data for the restaurant reviews web application.
+5. Follow the instructions contained in the [development server](https://github.com/udacity/mws-restaurant-stage-3)'s README to access the JSON data for the restaurant reviews web application.
 
 ## Leaflet.js and Mapbox:
 
